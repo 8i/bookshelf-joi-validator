@@ -10,16 +10,15 @@ var Joi = require('joi');
 chai.use(chaiAsPromised);
 
 describe('bookshelf transaction manager', function() {
-  before(function() {
-    this.knex = require('knex')({
-      client: 'sqlite3', connection: { filename: ':memory:'}
-    });
-    this.bookshelf = require('bookshelf')(this.knex);
-    this.bookshelf.plugin(require('../'));
-  });
+
+const knex = require('knex')({
+  client: 'sqlite3', connection: { filename: ':memory:'}
+});
+const bookshelf = require('bookshelf')(knex);
+bookshelf.plugin(require('../'));
 
   before(function() {
-    return this.knex.schema
+    return knex.schema
       .createTable('users', function(table) {
         table.timestamps();
         table.increments('id').primary();
@@ -30,13 +29,13 @@ describe('bookshelf transaction manager', function() {
   });
 
   before(function() {
-    var Model = this.bookshelf.Model;
+    var Model = bookshelf.Model;
 
     var user = Joi.string().alphanum().min(3).max(30);
     var pass = Joi.string().regex(/[a-zA-Z0-9]{3,30}/);
     var uuid = Joi.string().guid();
 
-    this.User = this.bookshelf.Model.extend({
+    this.User = bookshelf.Model.extend({
       tableName: 'users',
       hasTimestamps: true,
 
@@ -58,7 +57,7 @@ describe('bookshelf transaction manager', function() {
   });
 
   it('should create object if valid data is passed', function() {
-    return expect(this.User.forge({
+    return expect(new this.User({
       user: 'admin', pass: 'abc',
       uuid: 'C56A4180-65AA-42EC-A945-5FD21DEC0538'
     }).save()).to.be.fulfilled;

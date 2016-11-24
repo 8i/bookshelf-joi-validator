@@ -17,8 +17,6 @@ module.exports = function (bookshelf) {
   bookshelf.Model = Model.extend({
 
     initialize: function() {
-      Model.prototype.constructor.apply(this, arguments);
-
       this.schema = this.schema || {};
 
       if (this.schema.create) {
